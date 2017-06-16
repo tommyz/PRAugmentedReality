@@ -7,11 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "PRARManager.h"
+#import <CoreLocation/CoreLocation.h>
+#import <MapKit/MapKit.h>
 
-@interface ViewController : UIViewController <PRARManagerDelegate>
+@interface ViewController : UIViewController<MKMapViewDelegate, CLLocationManagerDelegate>
 {
-    IBOutlet UIView *loadingV;
+    NSMutableArray *arData;
+    NSMutableArray *annotations;
 }
-
+@property (nonatomic, strong) MKMapView *mapView;
+@property (nonatomic, strong) CLLocationManager *locationManager;
+@property (nonatomic, strong) CLLocation *userLoaction;
 @end
