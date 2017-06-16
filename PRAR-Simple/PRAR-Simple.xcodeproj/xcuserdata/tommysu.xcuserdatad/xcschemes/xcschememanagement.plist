@@ -4,7 +4,7 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>PRAR-Example.xcscheme</key>
+		<key>PRAR-Simple.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
@@ -12,7 +12,12 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>36CF8BD7179A5088007BE243</key>
+		<key>36CB211F18E480E7000483F2</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>36CB214018E480E8000483F2</key>
 		<dict>
 			<key>primary</key>
 			<true/>

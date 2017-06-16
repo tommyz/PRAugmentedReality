@@ -323,6 +323,9 @@
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = GeoffroyLesage;
 				TargetAttributes = {
+					36CB211F18E480E7000483F2 = {
+						DevelopmentTeam = LWLRJ9CAEQ;
+					};
 					36CB214018E480E8000483F2 = {
 						TestTargetID = 36CB211F18E480E7000483F2;
 					};
@@ -523,6 +526,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				DEVELOPMENT_TEAM = LWLRJ9CAEQ;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "PRAR-Simple/PRAR-Simple-Prefix.pch";
 				INFOPLIST_FILE = "PRAR-Simple/PRAR-Simple-Info.plist";
@@ -536,6 +540,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				DEVELOPMENT_TEAM = LWLRJ9CAEQ;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "PRAR-Simple/PRAR-Simple-Prefix.pch";
 				INFOPLIST_FILE = "PRAR-Simple/PRAR-Simple-Info.plist";
