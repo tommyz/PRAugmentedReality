@@ -110,9 +110,17 @@
 - (void)setupRadar
 {
     NSArray *spots = [self.arController createRadarSpots];
-    
+    NSLog(@"spots=%@",spots);
     radar = [[ARRadar alloc] initWithFrame:CGRectMake((frameSize.width/2)-50, frameSize.height-100, 100, 100)
                                  withSpots:spots];
+}
+
+- (void)setupRadarLocation:(CLLocationCoordinate2D)location
+{
+    NSArray *spots = [self.arController getNewRadarSpots];
+    NSLog(@"setupRadarLocation spots=%@",spots);
+    radar = [[ARRadar alloc] initWithFrame:CGRectMake((frameSize.width/2)-50, frameSize.height-100, 100, 100)
+                                 withSpots:spots withLocation:location];
 }
 
 
@@ -150,7 +158,18 @@
     NSDictionary *arObjectsDict = [self.arController buildAROverlaysForData:arData
                                                            andLocation:location];
     [self setupAROverlaysWithData:arObjectsDict];
-    if (radarOption) [self setupRadar];
+    if (radarOption)
+    {
+        BOOL isTest = NO;
+        if (isTest)
+        {
+            [self setupRadarLocation:location];
+        }
+        else
+        {
+            [self setupRadar];
+        }
+    }
     [cameraSession startRunning];
     
     if (radarOption) {

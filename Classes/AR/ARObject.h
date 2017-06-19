@@ -44,10 +44,14 @@
     // Overlay View Objects
     IBOutlet UILabel *titleL;
     IBOutlet UILabel *distanceL;
+    
+    IBOutlet UIButton *infoButton;
 }
 
 @property (nonatomic, strong) NSString *arTitle;
 @property (nonatomic, strong) NSNumber *distance;
+
+@property (nonatomic, strong) CLLocation *objectLocation;
 
 - (id)initWithId:(int)newId
            title:(NSString*)newTitle
@@ -56,4 +60,5 @@ andCurrentLocation:(CLLocationCoordinate2D)currLoc;
 
 - (NSDictionary*)getARObjectData;
 
+- (IBAction)touchButton:(id)sender;
 @end

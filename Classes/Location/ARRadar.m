@@ -9,6 +9,8 @@
 #import <QuartzCore/QuartzCore.h>
 
 #import "ARRadar.h"
+#import "ARObject.h"
+#import "CLLocationExtensions.h"
 
 @interface ARRadar ()
 
@@ -67,8 +69,9 @@
     CGContextSetRGBFillColor(contextRef, 0.2, 1, 0.2, 0.8);
     
     int max = [[[theSpots allValues] valueForKeyPath:@"@max.intValue"] intValue];
+    NSLog(@"max=%d",max);
     int min = [[[theSpots allValues] valueForKeyPath:@"@min.intValue"] intValue];
-    
+    NSLog(@"min=%d",min);
     int x = 0;
     int y = 0;
     
@@ -83,7 +86,7 @@
         if ([[theSpots objectForKey:angle] intValue] != min) {
             distModifier = 1-(([[theSpots objectForKey:angle] floatValue]-min)/(max-min));
         }
-        
+        NSLog(@"distModifier=%f",distModifier);
         // Positioning on axis //
         if (angleI < 90) {
             float xWidth = Ex-Nx;
@@ -123,7 +126,8 @@
             y = Wy-(yWidth*angleModifier);
             y+=(yWidth*distModifier)*(1-((y-Ny)/yWidth));
         }
-        
+        NSLog(@"x=%d",x);
+        NSLog(@"y=%d",y);
         CGContextFillEllipseInRect(contextRef, CGRectMake(x, y, 4, 4));
     }
 }
@@ -143,6 +147,7 @@
     [self addSubview:radarMV];
     [self addSubview:radarBars];
 }
+
 -(void)setupSpots:(NSArray*)spots
 {
     for (NSDictionary* spot in spots) {
@@ -153,11 +158,66 @@
         angle = (int)fmod(angle, 360);
         
         int dist = [[spot objectForKey:@"distance"] intValue];
+        NSLog(@"dist=%d",dist);
         if (dist < 0) dist = 0;
         
         [theSpots setObject:[NSNumber numberWithInt:dist]
                      forKey:[NSNumber numberWithInt:angle]];
     }
+    
+    if (theSpots.count < 1) return;
+    NSLog(@"theSpots=%@",theSpots);
+    
+}
+
+-(void)setupSpots:(NSArray*)spots withLocation:(CLLocationCoordinate2D)location
+{
+    NSLog(@"spots=%@",spots);
+//    thePoints = [[NSMutableArray alloc] initWithArray:spots];
+    
+    NSSortDescriptor *sortDescriptor;
+    sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"distance"
+                                                 ascending:YES];
+    thePoints = [spots sortedArrayUsingDescriptors:@[sortDescriptor]];
+    NSLog(@"thePoints=%@",thePoints);
+    
+    if (thePoints.count < 1) return;
+    
+    float r_rect_center_x = [self frame].size.width / 2;
+    float r_rect_center_y = [self frame].size.height / 2;
+    
+    ARObject *arObjectMax = [thePoints lastObject];
+    int max = [arObjectMax.distance intValue];
+    NSLog(@"max=%d",max);
+    ARObject *arObjectMin = [thePoints firstObject];
+    int min = [arObjectMin.distance intValue];
+    NSLog(@"min=%d",min);
+    
+    for (NSInteger i = 0; i < thePoints.count; i++)
+    {
+        ARObject *arObject = [thePoints objectAtIndex:i];
+        
+        float per = (float)[arObject.distance floatValue]/(float)max;
+        //    float per = (float)[coordinate.distance intValue]/AppDelegate.AR_distance;
+        NSLog(@"per is %f",per);
+        per += 0.1;
+        float rada_size = ([self frame].size.width/2) * per * 9/10;
+        //    NSLog(@"rada_size is %f",rada_size);
+        //	NSLog(@"AppDelegate.location is %@",);
+        CLLocation *own = [[CLLocation alloc] initWithLatitude:location.latitude longitude:location.longitude];
+        
+        CLLocation *target1 = [[CLLocation alloc] initWithLatitude:arObject.objectLocation.coordinate.latitude longitude:arObject.objectLocation.coordinate.longitude];
+        
+        float x1 = sinf([own azimuthToLocation:target1]) * rada_size;
+        float y1 = cosf([own azimuthToLocation:target1]) * rada_size;
+        
+        UIImageView *point1 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"point.png"]];
+        [point1 setFrame:CGRectMake(0, 0, 10, 10)];
+        [point1 setCenter:CGPointMake(r_rect_center_x + x1, r_rect_center_y + y1)];
+        [self addSubview:point1];
+    }
+    
+    
 }
 
 
@@ -181,6 +241,23 @@
     return self;
 }
 
+- (id)initWithFrame:(CGRect)frame withSpots:(NSArray*)spots withLocation:(CLLocationCoordinate2D)location
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        
+        [self setBackgroundColor:[UIColor clearColor]];
+        
+        theSpots = [NSMutableDictionary dictionary];
+        
+        [self setupRadarImages];
+        [self setupSpots:spots withLocation:location];
+        
+        [self turnRadar];
+        
+    }
+    return self;
+}
 
 #pragma mark - Moving the radar scanner
 

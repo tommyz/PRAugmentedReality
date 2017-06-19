@@ -50,8 +50,10 @@ andCurrentLocation:(CLLocationCoordinate2D)currLoc
         lat = newCoordinates.latitude;
         lon = newCoordinates.longitude;
         
-        distance = @([self calculateDistanceFrom:currLoc]);
+        self.objectLocation = [[CLLocation alloc] initWithLatitude:newCoordinates.latitude longitude:newCoordinates.longitude];
         
+        distance = @([self calculateDistanceFrom:currLoc]);
+        NSLog(@"distance=%@",distance);
         [self.view setTag:newId];
     }
     return self;
@@ -70,9 +72,14 @@ andCurrentLocation:(CLLocationCoordinate2D)currLoc
 }
 -(NSString*)getDistanceLabelText
 {
+    /*
     if (distance.doubleValue > POINT_ONE_MILE_METERS)
          return [NSString stringWithFormat:@"%.2f mi", distance.doubleValue*METERS_TO_MILES];
     else return [NSString stringWithFormat:@"%.0f ft", distance.doubleValue*METERS_TO_FEET];
+    */
+    if (distance.doubleValue > 1000)
+        return [NSString stringWithFormat:@"%.2f 公里", distance.doubleValue/1000.f];
+    else return [NSString stringWithFormat:@"%.0f 公尺", distance.doubleValue];
 }
 
 - (NSDictionary*)getARObjectData
@@ -104,4 +111,8 @@ andCurrentLocation:(CLLocationCoordinate2D)currLoc
             arId, arTitle, lat, lon, distance];
 }
 
+- (IBAction)touchButton:(id)sender
+{
+    NSLog(@"touchButton description=%@",[self description]);
+}
 @end

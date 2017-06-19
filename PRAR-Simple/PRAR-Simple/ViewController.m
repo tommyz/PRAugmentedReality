@@ -9,6 +9,8 @@
 #import "ViewController.h"
 #import "ARViewController.h"
 #import "MyLocation.h"
+#import "MKMapView+ZoomLevel.h"
+#import "AppDelegate.h"
 
 #define LOC_REFRESH_TIMER   10  //seconds
 #define MAP_SPAN            804 // The span of the map view
@@ -20,12 +22,37 @@
 
 @implementation ViewController
 
+- (void)viewDidAppear:(BOOL)animated // or wherever works for you
+{
+    [super viewDidAppear:animated];
+    /*
+    if ([_mapView respondsToSelector:@selector(camera)]) {
+        MKMapCamera *newCamera = [[_mapView camera] copy];
+        [newCamera setHeading:90.0]; // or newCamera.heading + 90.0 % 360.0
+        [_mapView setCamera:newCamera animated:YES];
+    }
+     */
+}
+
+- (void)viewDidDisappear:(BOOL)animated // or wherever works for you
+{
+    [super viewDidDisappear:animated];
+    
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
+    appDelegate = (AppDelegate  *)[[UIApplication sharedApplication] delegate];
+    
     _mapView = [MKMapView new];
     _mapView.frame = self.view.frame;
+    _mapView.delegate = self;
+    _mapView.showsBuildings = YES;
+    _mapView.rotateEnabled = YES;
+    [_mapView setUserTrackingMode:MKUserTrackingModeFollowWithHeading];
+    _mapView.showsCompass = YES;
     [self.view addSubview:_mapView];
     
     if (![CLLocationManager locationServicesEnabled])
@@ -61,25 +88,28 @@
                 [_locationManager requestWhenInUseAuthorization];
             }
             _mapView.showsUserLocation = YES;
+            
             [_locationManager startUpdatingLocation];
+            
+            if ([CLLocationManager headingAvailable]) {
+                _locationManager.headingFilter = 5;
+                [_locationManager startUpdatingHeading];
+            }
             
         }
     }
     
     UIButton *aButton = [UIButton new];
-    aButton.frame = CGRectMake(0, 20, self.view.frame.size.width, 50);
+    aButton.frame = CGRectMake(0, self.view.frame.size.height-50, self.view.frame.size.width, 50);
     aButton.backgroundColor = [UIColor redColor];
     [aButton setTitle:@"AR" forState:UIControlStateNormal];
     [aButton addTarget:self action:@selector(showAR:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:aButton];
     
     
-//    25.034054, 121.564411 101大樓
-//    25.057792, 121.532909 星巴克
-//    25.057223, 121.531561 時常在這裡
-//    25.056314, 121.532899 竹里館禪風茶趣
-//    25.057103, 121.536480 90 Night Club
     [self addLocationPoi];
+    
+    
 }
 
 -(void)addLocationPoi
@@ -109,14 +139,36 @@
         [annotations removeAllObjects];
     }
     
-    NSDictionary *locatiomDic = @{
-                                  @"nid" : @"0",
-                                  @"title" : @"101大樓",
-                                  @"lat" : @"25.034054",
-                                  @"lon" : @"121.564411"
-                                  };
+    //    25.034054, 121.564411 101大樓
+    //    25.057792, 121.532909 星巴克
+    //    25.057223, 121.531561 時常在這裡
+    //    25.056314, 121.532899 竹里館禪風茶趣
+    //    25.057103, 121.536480 90 Night Club
     
-    [arData addObject:locatiomDic];
+    NSDictionary *locatiomDic0 = @{
+                                   @"nid" : [NSNumber numberWithInteger:0],
+                                   @"title" : @"101大樓",
+                                   @"lat" : [NSNumber numberWithDouble:25.034054],
+                                   @"lon" : [NSNumber numberWithDouble:121.564411]
+                                   };
+    
+    NSDictionary *locatiomDic1 = @{
+                                   @"nid" : [NSNumber numberWithInteger:1],
+                                   @"title" : @"星巴克",
+                                   @"lat" : [NSNumber numberWithDouble:25.057792],
+                                   @"lon" : [NSNumber numberWithDouble:121.532909]
+                                   };
+    
+    NSDictionary *locatiomDic2 = @{
+                                   @"nid" : [NSNumber numberWithInteger:2],
+                                   @"title" : @"時常在這裡",
+                                   @"lat" : [NSNumber numberWithDouble:25.057223],
+                                   @"lon" : [NSNumber numberWithDouble:121.531561]
+                                   };
+    
+    [arData addObject:locatiomDic0];
+    [arData addObject:locatiomDic1];
+    [arData addObject:locatiomDic2];
     
     for (NSInteger i = 0; i < arData.count; i++)
     {
@@ -132,8 +184,6 @@
         [annotations addObject:annotation];
     }
     
-//
-//    [self performSelector:@selector(resetMapRect) withObject:nil afterDelay:0.5f];
 }
 
 - (MKCoordinateRegion)regionFromLocations
@@ -176,17 +226,6 @@
 {
     NSLog(@"resetMapRect");
 //    NSLog(@"annotations=%@",annotations);
-//    [_mapView showAnnotations:annotations animated:YES];
-    /*
-    MKMapRect zoomRect = MKMapRectNull;
-    for (id <MKAnnotation> annotation in _mapView.annotations)
-    {
-        MKMapPoint annotationPoint = MKMapPointForCoordinate(annotation.coordinate);
-        MKMapRect pointRect = MKMapRectMake(annotationPoint.x, annotationPoint.y, 0.1, 0.1);
-        zoomRect = MKMapRectUnion(zoomRect, pointRect);
-    }
-    [_mapView setVisibleMapRect:zoomRect animated:YES];
-     */
     MKMapRect zoomRect = MKMapRectNull;
     zoomRect = [self MKMapRectForCoordinateRegion:[self regionFromLocations]];
     [_mapView setVisibleMapRect:zoomRect animated:YES];
@@ -202,49 +241,18 @@
 }
 
 
-#pragma mark - Map View Delegate
+
 
 -(void)setMapToUserLocation
 {
     NSLog(@"setMapToUserLocation");
-    /*
-    NSLog(@"_mapView.userLocation.location.coordinate.latitude=%.5f",_mapView.userLocation.location.coordinate.latitude);
-    NSLog(@"_mapView.userLocation.location.coordinate.longitude=%.5f",_mapView.userLocation.location.coordinate.longitude);
-    
-    NSLog(@"_userLoaction.coordinate.latitude=%.5f",_userLoaction.coordinate.latitude);
-    NSLog(@"_userLoaction.coordinate.longitude=%.5f",_userLoaction.coordinate.longitude);
-    MKCoordinateRegion viewRegion = MKCoordinateRegionMakeWithDistance(CLLocationCoordinate2DMake(_userLoaction.coordinate.latitude,
-                                                                                                  _userLoaction.coordinate.longitude),
-                                                                       MAP_SPAN,
-                                                                       MAP_SPAN);
-    [_mapView setRegion:[_mapView regionThatFits:viewRegion] animated:NO];
-    */
-    [self resetMapRect];
-//    [UIView commitAnimations];
-    
+    CLLocationCoordinate2D mapPin = { _userLoaction.coordinate.latitude, _userLoaction.coordinate.longitude};
+    [_mapView setCenterCoordinate:mapPin zoomLevel:11 animated:YES];
+
+//    [self resetMapRect];
 }
 
--(void)plotAllPlaces
-{
-    /*
-    for (NSDictionary *place in arData) {
-        [self plotPlace:place andId:[place[@"nid"] integerValue]];
-    }
-     */
-}
--(void)plotPlace:(NSDictionary*)somePlace andId:(NSInteger)nid
-{
-    /*
-    NSString *arObjectName = somePlace[@"title"];
-    
-    CLLocationCoordinate2D coordinates;
-    coordinates.latitude = [somePlace[@"lat"] doubleValue];
-    coordinates.longitude = [somePlace[@"lon"] doubleValue];
-    MyLocation *annotation = [[MyLocation alloc] initWithName:arObjectName coordinate:coordinates andId:nid] ;
-    [_mapView addAnnotation:annotation];
-     */
-}
-
+#pragma mark - Map View Delegate
 -(MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id <MKAnnotation>)annotation
 {
     
@@ -281,7 +289,7 @@
         {
             return;
         }
-        //        [_locationManager stopUpdatingLocation];
+//        [_locationManager stopUpdatingLocation];
         
         [self locationUpdate:currentLocation];
         
@@ -302,12 +310,68 @@
     }
 }
 
+- (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation {
+    NSLog(@"didUpdateToLocation");
+    // scroll to new location
+    /*
+    MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(newLocation.coordinate, 2000, 2000);
+    [self.mapView setRegion:region animated:YES];
+    
+    // set position of "beam" to position of blue dot
+    self.headingAngleView.center = [self.mapView convertCoordinate:newLocation.coordinate toPointToView:self.view];
+    // slightly adjust position of beam
+    self.headingAngleView.frameTop -= self.headingAngleView.frameHeight/2 + 8;
+     */
+}
+
+- (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading {
+//    NSLog(@"didUpdateHeading");
+    
+    if (newHeading.headingAccuracy < 0)
+        return;
+    
+    // Use the true heading if it is valid.
+    CLLocationDirection theHeading = ((newHeading.trueHeading > 0) ?
+                                       newHeading.trueHeading : newHeading.magneticHeading);
+    
+    self.currentHeading = theHeading;
+    [self updateHeadingDisplays];
+}
+
+- (void)mapView:(MKMapView *)mapView didChangeUserTrackingMode:(MKUserTrackingMode)mode animated:(BOOL)animated
+{
+    NSLog(@"didChangeUserTrackingMode");
+    dispatch_async(dispatch_get_main_queue(),^{
+        if ([CLLocationManager locationServicesEnabled]) {
+            if ([CLLocationManager headingAvailable]) {
+                [_mapView setUserTrackingMode:MKUserTrackingModeFollowWithHeading animated:NO];
+            }else{
+                [_mapView setUserTrackingMode:MKUserTrackingModeFollow animated:NO];
+            }
+        }else{
+            [_mapView setUserTrackingMode:MKUserTrackingModeNone animated:NO];
+        }
+    });
+}
+
 - (void)locationUpdate:(CLLocation*)tempLoaction
 {
     _userLoaction = tempLoaction;
-//    NSLog(@"_userLoaction=%@",_userLoaction);
+    appDelegate.currentLocation = _userLoaction;
+    //    NSLog(@"_userLoaction=%@",_userLoaction);
     [self setMapToUserLocation];
+    /*
+     MKMapCamera *camera = [MKMapCamera new];
+     camera.centerCoordinate = _userLoaction.coordinate;
+     camera.heading = 0;
+     camera.pitch = 45;
+     camera.altitude = 700;
+     [self.mapView setCamera:camera animated:YES];
+     */
 }
 
-
+- (void)updateHeadingDisplays
+{
+    
+}
 @end

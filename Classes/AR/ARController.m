@@ -60,7 +60,8 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
     ARObject *arObject;
     
     for (NSDictionary *arObjectData in arData) {
-        NSNumber *ar_id = @([arObjectData[@"id"] intValue]);
+        NSNumber *ar_id = @([arObjectData[@"nid"] intValue]);
+        NSLog(@"ar_id=%@",ar_id);
         arObject = [[ARObject alloc] initWithId:ar_id.intValue
                                            title:arObjectData[@"title"]
                                      coordinates:CLLocationCoordinate2DMake([arObjectData[@"lat"] doubleValue],
@@ -89,6 +90,7 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
     for (NSNumber *ar_id in geoobjectOverlays.allKeys) {
         
         x_pos = [geoobjectPositions[ar_id] intValue];
+        NSLog(@"x_pos=%d",x_pos);
         arObject = geoobjectOverlays[ar_id];
         
         NSDictionary *spot = [NSDictionary dictionaryWithObjectsAndKeys:
@@ -99,6 +101,25 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
     }
     return [NSArray arrayWithArray:spots];
 }
+
+- (NSArray*)getNewRadarSpots
+{
+    NSMutableArray *spots = [NSMutableArray arrayWithCapacity:geoobjectOverlays.count];
+    
+    int x_pos = 0;
+    ARObject *arObject;
+    
+    for (NSNumber *ar_id in geoobjectOverlays.allKeys) {
+        
+        x_pos = [geoobjectPositions[ar_id] intValue];
+        NSLog(@"x_pos=%d",x_pos);
+        arObject = geoobjectOverlays[ar_id];
+        
+        [spots addObject:arObject];
+    }
+    return [NSArray arrayWithArray:spots];
+}
+
 - (void)setupDataForAR
 {
     [self setVerticalPosWithDistance];
@@ -131,10 +152,10 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
     int distance;
     
     for (NSString *key in geoobjectOverlays.allKeys) {
-        
+        NSLog(@"key=%@",key);
         arObject = geoobjectOverlays[key];
         distance = (int)(arObject.distance.doubleValue);
-        
+        NSLog(@"setVerticalPosWithDistance distance=%d",distance);
         if (distance < 20) {
             [geoobjectVerts setValue:@0 forKey:key];
         }

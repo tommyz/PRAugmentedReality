@@ -23,7 +23,8 @@
     // Initialize your current location as 0,0 (since it works with our randomly generated locations)
 //    CLLocationCoordinate2D locationCoordinates = CLLocationCoordinate2DMake(0, 0);
     
-    [self.prARManager startARWithData:[self getDummyData] forLocation:_userLoaction.coordinate];
+//    [self.prARManager startARWithData:[self getDummyData] forLocation:_userLoaction.coordinate];
+    [self.prARManager startARWithData:_arData forLocation:_userLoaction.coordinate];
 }
 
 - (void)viewDidLoad {
@@ -100,7 +101,7 @@
 
 -(void)prarDidSetupAR:(UIView *)arView withCameraLayer:(AVCaptureVideoPreviewLayer *)cameraLayer andRadarView:(UIView *)radar
 {
-    NSLog(@"Finished displaying ARObjects");
+//    NSLog(@"Finished displaying ARObjects");
     
     [self.view.layer addSublayer:cameraLayer];
     [self.view addSubview:arView];
