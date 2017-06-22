@@ -11,9 +11,7 @@
 #import "MyLocation.h"
 #import "MKMapView+ZoomLevel.h"
 #import "AppDelegate.h"
-
-#define LOC_REFRESH_TIMER   10  //seconds
-#define MAP_SPAN            804 // The span of the map view
+#import "ARGeoCoordinate.h"
 
 @interface ViewController ()
 
@@ -22,19 +20,13 @@
 
 @implementation ViewController
 
-- (void)viewDidAppear:(BOOL)animated // or wherever works for you
+- (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    /*
-    if ([_mapView respondsToSelector:@selector(camera)]) {
-        MKMapCamera *newCamera = [[_mapView camera] copy];
-        [newCamera setHeading:90.0]; // or newCamera.heading + 90.0 % 360.0
-        [_mapView setCamera:newCamera animated:YES];
-    }
-     */
+    
 }
 
-- (void)viewDidDisappear:(BOOL)animated // or wherever works for you
+- (void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
     
@@ -44,7 +36,7 @@
 {
     [super viewDidLoad];
     
-    appDelegate = (AppDelegate  *)[[UIApplication sharedApplication] delegate];
+    appDelegate = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     
     _mapView = [MKMapView new];
     _mapView.frame = self.view.frame;
@@ -87,6 +79,7 @@
             if ([_locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
                 [_locationManager requestWhenInUseAuthorization];
             }
+            
             _mapView.showsUserLocation = YES;
             
             [_locationManager startUpdatingLocation];
@@ -99,24 +92,22 @@
         }
     }
     
-    UIButton *aButton = [UIButton new];
-    aButton.frame = CGRectMake(0, self.view.frame.size.height-50, self.view.frame.size.width, 50);
-    aButton.backgroundColor = [UIColor redColor];
-    [aButton setTitle:@"AR" forState:UIControlStateNormal];
-    [aButton addTarget:self action:@selector(showAR:) forControlEvents:UIControlEventTouchUpInside];
-    [self.view addSubview:aButton];
-    
+    UIButton *arButoon = [UIButton new];
+    arButoon.frame = CGRectMake(0, self.view.frame.size.height-50, self.view.frame.size.width, 50);
+    arButoon.backgroundColor = [UIColor redColor];
+    [arButoon setTitle:@"AR1" forState:UIControlStateNormal];
+    [arButoon addTarget:self action:@selector(showAR1:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:arButoon];
     
     [self addLocationPoi];
-    
     
 }
 
 -(void)addLocationPoi
 {
-    NSLog(@"addLocationPoi");
-    //	[google_mv removeAnnotations:google_mv.annotations];
+    
     NSInteger toRemoveCount = _mapView.annotations.count;
+    
     NSMutableArray *toRemove = [NSMutableArray arrayWithCapacity:toRemoveCount];
     for (id annotation in _mapView.annotations)
     {
@@ -127,7 +118,7 @@
     }
     
     [_mapView removeAnnotations:toRemove];
-    //    NSLog(@"[list_data count] is %d",[list_data count]);
+    
     if (arData == nil)
     {
         arData = [NSMutableArray new];
@@ -144,23 +135,30 @@
     //    25.057223, 121.531561 時常在這裡
     //    25.056314, 121.532899 竹里館禪風茶趣
     //    25.057103, 121.536480 90 Night Club
+//    25.051786, 121.533897 丼賞和食焼
+//    NSDictionary *locatiomDic0 = @{
+//                                   @"id" : [NSNumber numberWithInteger:0],
+//                                   @"title" : @"101大樓",
+//                                   @"lat" : [NSNumber numberWithDouble:25.034054],
+//                                   @"lon" : [NSNumber numberWithDouble:121.564411]
+//                                   };
     
     NSDictionary *locatiomDic0 = @{
-                                   @"nid" : [NSNumber numberWithInteger:0],
-                                   @"title" : @"101大樓",
-                                   @"lat" : [NSNumber numberWithDouble:25.034054],
-                                   @"lon" : [NSNumber numberWithDouble:121.564411]
+                                   @"id" : [NSNumber numberWithInteger:0],
+                                   @"title" : @"丼賞和食焼",
+                                   @"lat" : [NSNumber numberWithDouble:25.051786],
+                                   @"lon" : [NSNumber numberWithDouble:121.533897]
                                    };
     
     NSDictionary *locatiomDic1 = @{
-                                   @"nid" : [NSNumber numberWithInteger:1],
+                                   @"id" : [NSNumber numberWithInteger:1],
                                    @"title" : @"星巴克",
                                    @"lat" : [NSNumber numberWithDouble:25.057792],
                                    @"lon" : [NSNumber numberWithDouble:121.532909]
                                    };
     
     NSDictionary *locatiomDic2 = @{
-                                   @"nid" : [NSNumber numberWithInteger:2],
+                                   @"id" : [NSNumber numberWithInteger:2],
                                    @"title" : @"時常在這裡",
                                    @"lat" : [NSNumber numberWithDouble:25.057223],
                                    @"lon" : [NSNumber numberWithDouble:121.531561]
@@ -170,10 +168,94 @@
     [arData addObject:locatiomDic1];
     [arData addObject:locatiomDic2];
     
+    
+    /*
+    NSDictionary *locatiomDic0 = @{
+                                   @"id" : [NSNumber numberWithInteger:0],
+                                   @"title" : @"Chicago",
+                                   @"lat" : [NSNumber numberWithDouble:41.879535],
+                                   @"lon" : [NSNumber numberWithDouble:-87.624333]
+                                   };
+    
+    NSDictionary *locatiomDic1 = @{
+                                   @"id" : [NSNumber numberWithInteger:1],
+                                   @"title" : @"London",
+                                   @"lat" : [NSNumber numberWithDouble:51.500152],
+                                   @"lon" : [NSNumber numberWithDouble:-0.126236]
+                                   };
+    
+    NSDictionary *locatiomDic2 = @{
+                                   @"id" : [NSNumber numberWithInteger:2],
+                                   @"title" : @"Paris",
+                                   @"lat" : [NSNumber numberWithDouble:48.856667],
+                                   @"lon" : [NSNumber numberWithDouble:2.350987]
+                                   };
+    
+    NSDictionary *locatiomDic3 = @{
+                                   @"id" : [NSNumber numberWithInteger:3],
+                                   @"title" : @"Seattle",
+                                   @"lat" : [NSNumber numberWithDouble:47.620973],
+                                   @"lon" : [NSNumber numberWithDouble:-122.347276]
+                                   };
+    
+    NSDictionary *locatiomDic4 = @{
+                                   @"id" : [NSNumber numberWithInteger:4],
+                                   @"title" : @"India",
+                                   @"lat" : [NSNumber numberWithDouble:20.593684],
+                                   @"lon" : [NSNumber numberWithDouble:78.96288]
+                                   };
+    
+    NSDictionary *locatiomDic5 = @{
+                                   @"id" : [NSNumber numberWithInteger:5],
+                                   @"title" : @"Amsterdam",
+                                   @"lat" : [NSNumber numberWithDouble:52.373801],
+                                   @"lon" : [NSNumber numberWithDouble:4.890935]
+                                   };
+    
+    NSDictionary *locatiomDic6 = @{
+                                   @"id" : [NSNumber numberWithInteger:6],
+                                   @"title" : @"Hawaii",
+                                   @"lat" : [NSNumber numberWithDouble:19.611544],
+                                   @"lon" : [NSNumber numberWithDouble:-155.665283]
+                                   };
+    
+    NSDictionary *locatiomDic7 = @{
+                                   @"id" : [NSNumber numberWithInteger:7],
+                                   @"title" : @"New York City",
+                                   @"lat" : [NSNumber numberWithDouble:40.756054],
+                                   @"lon" : [NSNumber numberWithDouble:-73.986951]
+                                   };
+    
+    NSDictionary *locatiomDic8 = @{
+                                   @"id" : [NSNumber numberWithInteger:8],
+                                   @"title" : @"Boston",
+                                   @"lat" : [NSNumber numberWithDouble:42.35892],
+                                   @"lon" : [NSNumber numberWithDouble:-71.05781]
+                                   };
+    
+    NSDictionary *locatiomDic9 = @{
+                                   @"id" : [NSNumber numberWithInteger:9],
+                                   @"title" : @"Washington, DC",
+                                   @"lat" : [NSNumber numberWithDouble:38.892091],
+                                   @"lon" : [NSNumber numberWithDouble:-77.024055]
+                                   };
+    
+    
+    [arData addObject:locatiomDic0];
+    [arData addObject:locatiomDic1];
+    [arData addObject:locatiomDic2];
+    [arData addObject:locatiomDic3];
+    [arData addObject:locatiomDic4];
+    [arData addObject:locatiomDic5];
+    [arData addObject:locatiomDic6];
+    [arData addObject:locatiomDic7];
+    [arData addObject:locatiomDic8];
+    [arData addObject:locatiomDic9];
+    */
     for (NSInteger i = 0; i < arData.count; i++)
     {
         NSDictionary *somePlace = [arData objectAtIndex:i];
-        NSInteger nid = [somePlace[@"nid"] integerValue];
+        NSInteger nid = [somePlace[@"id"] integerValue];
         NSString *arObjectName = somePlace[@"title"];
         
         CLLocationCoordinate2D coordinates;
@@ -186,53 +268,7 @@
     
 }
 
-- (MKCoordinateRegion)regionFromLocations
-{
-    CLLocationCoordinate2D upper = [_userLoaction coordinate];
-    CLLocationCoordinate2D lower = [_userLoaction coordinate];
-    
-    // FIND LIMITS
-    for(MyLocation *eachLocation in annotations) {
-        if([eachLocation coordinate].latitude > upper.latitude) upper.latitude = [eachLocation coordinate].latitude;
-        if([eachLocation coordinate].latitude < lower.latitude) lower.latitude = [eachLocation coordinate].latitude;
-        if([eachLocation coordinate].longitude > upper.longitude) upper.longitude = [eachLocation coordinate].longitude;
-        if([eachLocation coordinate].longitude < lower.longitude) lower.longitude = [eachLocation coordinate].longitude;
-    }
-    
-    // FIND REGION
-    MKCoordinateSpan locationSpan;
-    locationSpan.latitudeDelta = upper.latitude - lower.latitude;
-    locationSpan.longitudeDelta = upper.longitude - lower.longitude;
-    CLLocationCoordinate2D locationCenter;
-    locationCenter.latitude = (upper.latitude + lower.latitude) / 2;
-    locationCenter.longitude = (upper.longitude + lower.longitude) / 2;
-    
-    MKCoordinateRegion region = MKCoordinateRegionMake(locationCenter, locationSpan);
-    return region;
-}
-
-- (MKMapRect)MKMapRectForCoordinateRegion:(MKCoordinateRegion)region
-{
-    MKMapPoint a = MKMapPointForCoordinate(CLLocationCoordinate2DMake(
-                                                                      region.center.latitude + region.span.latitudeDelta / 2,
-                                                                      region.center.longitude - region.span.longitudeDelta / 2));
-    MKMapPoint b = MKMapPointForCoordinate(CLLocationCoordinate2DMake(
-                                                                      region.center.latitude - region.span.latitudeDelta / 2,
-                                                                      region.center.longitude + region.span.longitudeDelta / 2));
-    return MKMapRectMake(MIN(a.x,b.x), MIN(a.y,b.y), ABS(a.x-b.x), ABS(a.y-b.y));
-}
-
-- (void)resetMapRect;
-{
-    NSLog(@"resetMapRect");
-//    NSLog(@"annotations=%@",annotations);
-    MKMapRect zoomRect = MKMapRectNull;
-    zoomRect = [self MKMapRectForCoordinateRegion:[self regionFromLocations]];
-    [_mapView setVisibleMapRect:zoomRect animated:YES];
-    
-}
-
-- (void)showAR:(id)sender
+- (void)showAR1:(id)sender
 {
     ARViewController *vc = [ARViewController new];
     vc.arData = arData;
@@ -240,16 +276,21 @@
     [self presentViewController:vc animated:YES completion:nil];
 }
 
-
-
+-(double)calculateDistanceFrom:(CLLocation*)userLocation withObjec:(CLLocation*)objectLocation
+{
+    return [objectLocation distanceFromLocation:userLocation];
+}
 
 -(void)setMapToUserLocation
 {
     NSLog(@"setMapToUserLocation");
-    CLLocationCoordinate2D mapPin = { _userLoaction.coordinate.latitude, _userLoaction.coordinate.longitude};
-    [_mapView setCenterCoordinate:mapPin zoomLevel:11 animated:YES];
-
-//    [self resetMapRect];
+    if (!isCenterCoordinate)
+    {
+        isCenterCoordinate = YES;
+        CLLocationCoordinate2D mapPin = { _userLoaction.coordinate.latitude, _userLoaction.coordinate.longitude};
+        [_mapView setCenterCoordinate:mapPin zoomLevel:14 animated:YES];
+    }
+    
 }
 
 #pragma mark - Map View Delegate
@@ -279,7 +320,7 @@
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
-    //    NSLog(@"locationManager didUpdateLocations");
+    NSLog(@"didUpdateLocations locations");
     CLLocation *currentLocation = [locations lastObject];
     NSTimeInterval eventInterval = [currentLocation.timestamp timeIntervalSinceNow];
     
@@ -289,58 +330,31 @@
         {
             return;
         }
-//        [_locationManager stopUpdatingLocation];
-        
         [self locationUpdate:currentLocation];
-        
     }
     
 }
 
 - (void)locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
-    //    NSLog(@"locationManager didFailWithError");
-    //    _isUseAutoLocation = NO;
-    [[NSNotificationCenter defaultCenter] postNotificationName:@"postGPSFirstError" object:nil];
-    //    [[AlertProcessManager shareInstance] dismissLoadingAlert];
-    NSLog(@"locationManager didFailWithError error.code=%ld",(long)error.code);
-    if (error.code == kCLErrorDenied)
-    {
-        // 提示用户出错原因，可按住Option键点击 KCLErrorDenied的查看更多出错信息，可打印error.code值查找原因所在
-    }
+    NSLog(@"locationManager didFailWithError");
+
 }
 
 - (void)locationManager:(CLLocationManager *)manager didUpdateToLocation:(CLLocation *)newLocation fromLocation:(CLLocation *)oldLocation {
-    NSLog(@"didUpdateToLocation");
+    NSLog(@"didUpdateToLocation newLocation");
     // scroll to new location
-    /*
-    MKCoordinateRegion region = MKCoordinateRegionMakeWithDistance(newLocation.coordinate, 2000, 2000);
-    [self.mapView setRegion:region animated:YES];
     
-    // set position of "beam" to position of blue dot
-    self.headingAngleView.center = [self.mapView convertCoordinate:newLocation.coordinate toPointToView:self.view];
-    // slightly adjust position of beam
-    self.headingAngleView.frameTop -= self.headingAngleView.frameHeight/2 + 8;
-     */
 }
 
-- (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading {
-//    NSLog(@"didUpdateHeading");
-    
+- (void)locationManager:(CLLocationManager *)manager didUpdateHeading:(CLHeading *)newHeading
+{
     if (newHeading.headingAccuracy < 0)
         return;
-    
-    // Use the true heading if it is valid.
-    CLLocationDirection theHeading = ((newHeading.trueHeading > 0) ?
-                                       newHeading.trueHeading : newHeading.magneticHeading);
-    
-    self.currentHeading = theHeading;
-    [self updateHeadingDisplays];
 }
 
 - (void)mapView:(MKMapView *)mapView didChangeUserTrackingMode:(MKUserTrackingMode)mode animated:(BOOL)animated
 {
-    NSLog(@"didChangeUserTrackingMode");
     dispatch_async(dispatch_get_main_queue(),^{
         if ([CLLocationManager locationServicesEnabled]) {
             if ([CLLocationManager headingAvailable]) {
@@ -357,21 +371,11 @@
 - (void)locationUpdate:(CLLocation*)tempLoaction
 {
     _userLoaction = tempLoaction;
-    appDelegate.currentLocation = _userLoaction;
-    //    NSLog(@"_userLoaction=%@",_userLoaction);
+    NSLog(@"_userLoaction.coordinate.latitude=%.5f",_userLoaction.coordinate.latitude);
+    NSLog(@"_userLoaction.coordinate.longitude=%.5f",_userLoaction.coordinate.longitude);
+    
     [self setMapToUserLocation];
-    /*
-     MKMapCamera *camera = [MKMapCamera new];
-     camera.centerCoordinate = _userLoaction.coordinate;
-     camera.heading = 0;
-     camera.pitch = 45;
-     camera.altitude = 700;
-     [self.mapView setCamera:camera animated:YES];
-     */
+
 }
 
-- (void)updateHeadingDisplays
-{
-    
-}
 @end

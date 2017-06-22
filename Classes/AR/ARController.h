@@ -40,5 +40,5 @@
 
 -(NSDictionary*)buildAROverlaysForData:(NSArray*)arData andLocation:(CLLocationCoordinate2D)newLocation;
 -(NSArray*)createRadarSpots;
--(NSArray*)getNewRadarSpots;
+-(NSArray*)createNewRadarSpots;
 @end

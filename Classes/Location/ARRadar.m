@@ -11,7 +11,7 @@
 #import "ARRadar.h"
 #import "ARObject.h"
 #import "CLLocationExtensions.h"
-
+#define MaxPer 0.10
 @interface ARRadar ()
 
 @end
@@ -62,6 +62,7 @@
 
 - (void)drawRect:(CGRect)rect
 {
+    NSLog(@"drawRect");
     if (theSpots.count < 1) return;
     
     CGContextRef contextRef = UIGraphicsGetCurrentContext();
@@ -74,19 +75,27 @@
     NSLog(@"min=%d",min);
     int x = 0;
     int y = 0;
-    
+    NSLog(@"(max-min)=%d",(max-min));
     for (NSNumber *angle in theSpots.allKeys) {
         
         // Angle modifier //
         int angleI = angle.intValue;
+        NSLog(@"angleI=%d",angleI);
         float angleModifier = fmod(angleI,90)/90.0;
         
         // Distance modifier //
         float distModifier = 0;
-        if ([[theSpots objectForKey:angle] intValue] != min) {
-            distModifier = 1-(([[theSpots objectForKey:angle] floatValue]-min)/(max-min));
+        int dist = [[theSpots objectForKey:angle] intValue];
+        NSLog(@"dist=%d",dist);
+        
+        if ([[theSpots objectForKey:angle] intValue] != min)
+        {
+            float tempFloatDis = [[theSpots objectForKey:angle] floatValue];
+            NSLog(@"tempFloatDis=%f",tempFloatDis);
+            NSLog(@"tempFloatDis-min=%f",tempFloatDis-min);
+            distModifier = 1-((float)(tempFloatDis-min)/(float)(max-min));
         }
-        NSLog(@"distModifier=%f",distModifier);
+//        NSLog(@"aa distModifier=%f",distModifier);
         // Positioning on axis //
         if (angleI < 90) {
             float xWidth = Ex-Nx;
@@ -128,6 +137,7 @@
         }
         NSLog(@"x=%d",x);
         NSLog(@"y=%d",y);
+        
         CGContextFillEllipseInRect(contextRef, CGRectMake(x, y, 4, 4));
     }
 }
@@ -200,8 +210,9 @@
         float per = (float)[arObject.distance floatValue]/(float)max;
         //    float per = (float)[coordinate.distance intValue]/AppDelegate.AR_distance;
         NSLog(@"per is %f",per);
-        per += 0.1;
-        float rada_size = ([self frame].size.width/2) * per * 9/10;
+        per += MaxPer;
+        float tempWidth = ([self frame].size.width/2.f) * (1 - MaxPer * 2);
+        float rada_size =  tempWidth * per;
         //    NSLog(@"rada_size is %f",rada_size);
         //	NSLog(@"AppDelegate.location is %@",);
         CLLocation *own = [[CLLocation alloc] initWithLatitude:location.latitude longitude:location.longitude];
@@ -210,7 +221,8 @@
         
         float x1 = sinf([own azimuthToLocation:target1]) * rada_size;
         float y1 = cosf([own azimuthToLocation:target1]) * rada_size;
-        
+        NSLog(@"x1=%.2f",x1);
+        NSLog(@"x1=%.2f",x1);
         UIImageView *point1 = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"point.png"]];
         [point1 setFrame:CGRectMake(0, 0, 10, 10)];
         [point1 setCenter:CGPointMake(r_rect_center_x + x1, r_rect_center_y + y1)];

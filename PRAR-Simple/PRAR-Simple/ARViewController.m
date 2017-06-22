@@ -40,6 +40,7 @@
     aButton.tag = 999999;
     [self.view addSubview:aButton];
     [self.view bringSubviewToFront:aButton];
+    
 }
 
 - (void)backVC:(id)sender

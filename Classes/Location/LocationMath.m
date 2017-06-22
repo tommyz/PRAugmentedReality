@@ -109,7 +109,7 @@
 {
     float y_pos = currentInclination*VERTICAL_SENS;
     float x_pos = X_CENTER+(0-currentHeading)*HORIZ_SENS;
-    
+//    NSLog(@"deviceViewHeight=%f",deviceViewHeight);
     return CGRectMake(x_pos, y_pos+60, OVERLAY_VIEW_WIDTH, deviceViewHeight);
 }
 

@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <CoreLocation/CoreLocation.h>
 #import <MapKit/MapKit.h>
+
 @class AppDelegate;
 
 @interface ViewController : UIViewController<MKMapViewDelegate, CLLocationManagerDelegate>
@@ -16,10 +17,9 @@
     AppDelegate *appDelegate;
     NSMutableArray *arData;
     NSMutableArray *annotations;
-    BOOL isAdd;
+    BOOL isCenterCoordinate;
 }
 @property (nonatomic, strong) MKMapView *mapView;
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, strong) CLLocation *userLoaction;
-@property CLLocationDirection currentHeading;
 @end

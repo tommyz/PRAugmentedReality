@@ -60,7 +60,7 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
     ARObject *arObject;
     
     for (NSDictionary *arObjectData in arData) {
-        NSNumber *ar_id = @([arObjectData[@"nid"] intValue]);
+        NSNumber *ar_id = @([arObjectData[@"id"] intValue]);
         NSLog(@"ar_id=%@",ar_id);
         arObject = [[ARObject alloc] initWithId:ar_id.intValue
                                            title:arObjectData[@"title"]
@@ -102,7 +102,7 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
     return [NSArray arrayWithArray:spots];
 }
 
-- (NSArray*)getNewRadarSpots
+- (NSArray*)createNewRadarSpots
 {
     NSMutableArray *spots = [NSMutableArray arrayWithCapacity:geoobjectOverlays.count];
     
@@ -138,6 +138,7 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
     arView.transform = CGAffineTransformMakeScale(shrinkLevel, shrinkLevel);
     
 }
+
 -(int)setYPosForView:(UIView*)arView atVerticalPos:(int)verticalPos
 {
     int pos = Y_CENTER-(int)(arView.frame.size.height*verticalPos);
@@ -227,6 +228,7 @@ CATransform3DMake(CGFloat m11, CGFloat m12, CGFloat m13, CGFloat m14,
         }
     }
 }
+
 -(void)setFramesForOverlays
 {
     int x_pos, y_pos, vertPosition;
