@@ -93,11 +93,18 @@
     }
     
     UIButton *arButoon = [UIButton new];
-    arButoon.frame = CGRectMake(0, self.view.frame.size.height-50, self.view.frame.size.width, 50);
+    arButoon.frame = CGRectMake(0, self.view.frame.size.height-50, self.view.frame.size.width/2, 50);
     arButoon.backgroundColor = [UIColor redColor];
     [arButoon setTitle:@"AR1" forState:UIControlStateNormal];
     [arButoon addTarget:self action:@selector(showAR1:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:arButoon];
+    
+    UIButton *arButoon2 = [UIButton new];
+    arButoon2.frame = CGRectMake(self.view.frame.size.width/2, self.view.frame.size.height-50, self.view.frame.size.width/2, 50);
+    arButoon2.backgroundColor = [UIColor blueColor];
+    [arButoon2 setTitle:@"AR2" forState:UIControlStateNormal];
+    [arButoon2 addTarget:self action:@selector(showAR2:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:arButoon2];
     
     [self addLocationPoi];
     
@@ -276,6 +283,16 @@
     [self presentViewController:vc animated:YES completion:nil];
 }
 
+- (void)showAR2:(id)sender
+{
+    /*
+    ARViewController *vc = [ARViewController new];
+    vc.arData = arData;
+    vc.userLoaction = _userLoaction;
+    [self presentViewController:vc animated:YES completion:nil];
+     */
+}
+
 -(double)calculateDistanceFrom:(CLLocation*)userLocation withObjec:(CLLocation*)objectLocation
 {
     return [objectLocation distanceFromLocation:userLocation];
@@ -288,7 +305,7 @@
     {
         isCenterCoordinate = YES;
         CLLocationCoordinate2D mapPin = { _userLoaction.coordinate.latitude, _userLoaction.coordinate.longitude};
-        [_mapView setCenterCoordinate:mapPin zoomLevel:14 animated:YES];
+        [_mapView setCenterCoordinate:mapPin zoomLevel:8 animated:YES];
     }
     
 }
@@ -313,6 +330,21 @@
     }
      
     return nil;
+}
+
+- (void)mapView:(MKMapView *)mapView didChangeUserTrackingMode:(MKUserTrackingMode)mode animated:(BOOL)animated
+{
+    dispatch_async(dispatch_get_main_queue(),^{
+        if ([CLLocationManager locationServicesEnabled]) {
+            if ([CLLocationManager headingAvailable]) {
+                [_mapView setUserTrackingMode:MKUserTrackingModeFollowWithHeading animated:NO];
+            }else{
+                [_mapView setUserTrackingMode:MKUserTrackingModeFollow animated:NO];
+            }
+        }else{
+            [_mapView setUserTrackingMode:MKUserTrackingModeNone animated:NO];
+        }
+    });
 }
 
 #pragma mark -
@@ -353,20 +385,7 @@
         return;
 }
 
-- (void)mapView:(MKMapView *)mapView didChangeUserTrackingMode:(MKUserTrackingMode)mode animated:(BOOL)animated
-{
-    dispatch_async(dispatch_get_main_queue(),^{
-        if ([CLLocationManager locationServicesEnabled]) {
-            if ([CLLocationManager headingAvailable]) {
-                [_mapView setUserTrackingMode:MKUserTrackingModeFollowWithHeading animated:NO];
-            }else{
-                [_mapView setUserTrackingMode:MKUserTrackingModeFollow animated:NO];
-            }
-        }else{
-            [_mapView setUserTrackingMode:MKUserTrackingModeNone animated:NO];
-        }
-    });
-}
+
 
 - (void)locationUpdate:(CLLocation*)tempLoaction
 {

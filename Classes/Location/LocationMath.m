@@ -49,6 +49,9 @@
         [_locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
         [_locationManager setDistanceFilter:kCLDistanceFilterNone];
         [_locationManager setDelegate:self];
+        if ([_locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
+            [_locationManager requestWhenInUseAuthorization];
+        }
     }
     return self;
 }
